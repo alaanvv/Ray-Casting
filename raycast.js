@@ -12,16 +12,20 @@ const COLOR = {
   angle: '#F00',
   triangle_cathetus: '#0F0',
   triangle_hypotenuse: '#00F',
-  hit_line: '#FF0'
+  hit_line: '#FF0',
+
+  sky_3d: '#00C',
+  floor_3d: '#111'
 }
 const ANGLE_RENDER_DISTANCE = 20
 
+const PI = Math.PI
 const OFFSET_2D = 0
 const OFFSET_3D = canvas.width / 2
 const FOV = 1.74533 // 100 degrees
-const VIEW_DENSITY = FOV / 100
+const VIEW_DENSITY = FOV / 50
+const FIX_FISHEYE = 0
 
-const PI = Math.PI
 const CELL_SIZE = 10
 const MAX_DISTANCE = 10
 const MAX_WALL_HEIGHT = canvas.height - 2
@@ -82,6 +86,9 @@ function render2D() {
 }
 
 function render3D() {
+  rect(OFFSET_3D, 0, 100, MAX_WALL_HEIGHT / 2, COLOR.sky_3d)
+  rect(OFFSET_3D, MAX_WALL_HEIGHT / 2, 100, MAX_WALL_HEIGHT / 2, COLOR.floor_3d)
+
   const wall_width = (canvas.width / 2 - 1) / (FOV / VIEW_DENSITY)
 
   for (let i = 0; i < FOV; i += VIEW_DENSITY) {
@@ -150,7 +157,7 @@ function getNextWall(angle) {
         line(p.x, p.y, hit_cell_x, hit_cell_y, 'blue')
       }
   
-      if (map[cell_y] !== undefined && map[cell_y][cell_x] === 1) {
+      if (map[cell_y] !== undefined && map[cell_y][cell_x] === 1 && map[cell_y][cell_x + 1] === 0) {
         distance = Math.sqrt(x_distance ** 2 + y_distance ** 2)
         if (distance < MAX_DISTANCE * CELL_SIZE && closest_wall_distance > distance) {
           closest_wall_distance = distance
@@ -179,7 +186,7 @@ function getNextWall(angle) {
         line(p.x, p.y, hit_cell_x, hit_cell_y, 'blue')
       }
   
-      if (map[cell_y] !== undefined && map[cell_y][cell_x] === 1) {
+      if (map[cell_y] !== undefined && map[cell_y][cell_x] === 1 && map[cell_y][cell_x - 1] === 0) {
         distance = Math.sqrt(x_distance ** 2 + y_distance ** 2)
         if (distance < MAX_DISTANCE * CELL_SIZE && closest_wall_distance > distance) {
           closest_wall_distance = distance
@@ -209,7 +216,7 @@ function getNextWall(angle) {
         line(p.x, p.y, hit_cell_x, hit_cell_y, 'blue')
       }
   
-      if (map[cell_y] !== undefined && map[cell_y][cell_x] === 1) {
+      if (map[cell_y] !== undefined && map[cell_y][cell_x] === 1 && map[cell_y + 1][cell_x] === 0) {
         distance = Math.sqrt(x_distance ** 2 + y_distance ** 2)
         if (distance < MAX_DISTANCE * CELL_SIZE && closest_wall_distance > distance) {
           closest_wall_distance = distance
@@ -238,7 +245,7 @@ function getNextWall(angle) {
         line(p.x, p.y, hit_cell_x, hit_cell_y, 'blue')
       }
   
-      if (map[cell_y] !== undefined && map[cell_y][cell_x] === 1) {
+      if (map[cell_y] !== undefined && map[cell_y][cell_x] === 1 && map[cell_y - 1][cell_x] === 0) {
         distance = Math.sqrt(x_distance ** 2 + y_distance ** 2)
         if (distance < MAX_DISTANCE * CELL_SIZE && closest_wall_distance > distance) {
           closest_wall_distance = distance
@@ -255,10 +262,8 @@ function getNextWall(angle) {
     renderPlayer()
   }
   if (closest_wall_distance !== Infinity) {
-    return {
-      distance: closest_wall_distance * Math.cos(angle), // Fixing fisheye
-      side
-    }
+    if (FIX_FISHEYE) closest_wall_distance *= Math.cos(angle)
+    return { distance: closest_wall_distance, side }
   }
 }
 // ---
