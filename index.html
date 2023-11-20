@@ -16,9 +16,23 @@
 
     image-rendering: pixelated;
   }
+
+  p {
+    font-family: monospace;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #FFF;
+  }
 </style>
+
+<p>
+  Y: <span class='x'></span> <br>
+  X: <span class='y'></span> <br>
+  Angle: <span class='a-rad'></span> rad, <span class='a-deg'></span> deg
+</p>
 
 <canvas></canvas>
 
+<script src='./canvas.js'></script>
 <script src='./script.js'></script>
-<script src='./raycast.js'></script>
